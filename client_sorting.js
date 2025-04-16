@@ -140,56 +140,64 @@ document.addEventListener("click", (event) => {
 const style = document.createElement("style")
 style.textContent = `
   .client-sorting-section {
-    border-top: 1px solid #ccc;
-    border-bottom: 1px solid #ccc;
-    padding: 10px 0;
-    margin: 10px 0;
+    border-top: 1px solid #444;
+    border-bottom: 1px solid #444;
+    padding: 15px 0;
+    margin: 15px 0;
   }
 `
 document.head.appendChild(style)
 
-// Находим секцию сортировки клиентов
-const clientSortingSection = document
-  .querySelector(".client-sorting-checkbox")
-  .closest(".v-list-item")
-if (clientSortingSection) {
-  // Оборачиваем секцию в div с нужным классом
-  const wrapper = document.createElement("div")
-  wrapper.className = "client-sorting-section"
-  clientSortingSection.parentNode.insertBefore(wrapper, clientSortingSection)
-  wrapper.appendChild(clientSortingSection)
+// Находим секцию сортировки клиентов и добавляем стили после загрузки DOM
+document.addEventListener("DOMContentLoaded", function () {
+  const clientSortingCheckbox = document.querySelector(
+    ".client-sorting-checkbox"
+  )
+  if (clientSortingCheckbox) {
+    const clientSortingSection = clientSortingCheckbox.closest(".v-list-item")
+    if (clientSortingSection) {
+      // Оборачиваем секцию в div с нужным классом
+      const wrapper = document.createElement("div")
+      wrapper.className = "client-sorting-section"
+      clientSortingSection.parentNode.insertBefore(
+        wrapper,
+        clientSortingSection
+      )
+      wrapper.appendChild(clientSortingSection)
 
-  // Добавляем новый чекбокс для разворачивания статусов
-  const expandStatusesCheckbox = document.createElement("div")
-  expandStatusesCheckbox.className = "v-list-item"
-  expandStatusesCheckbox.innerHTML = `
-    <div class="v-list-item__content">
-      <div class="v-list-item__title">
-        <div class="v-input v-input--hide-details v-input--is-label-active v-input--is-dirty theme--light v-input--selection-controls v-input--checkbox">
-          <div class="v-input__control">
-            <div class="v-input__slot">
-              <div class="v-input--selection-controls__input">
-                <input type="checkbox" class="expand-statuses-checkbox">
-                <div class="v-input--selection-controls__ripple"></div>
-                <i class="v-icon notranslate mdi mdi-checkbox-marked theme--light"></i>
+      // Добавляем новый чекбокс для разворачивания статусов
+      const expandStatusesCheckbox = document.createElement("div")
+      expandStatusesCheckbox.className = "v-list-item"
+      expandStatusesCheckbox.innerHTML = `
+        <div class="v-list-item__content">
+          <div class="v-list-item__title">
+            <div class="v-input v-input--hide-details v-input--is-label-active v-input--is-dirty theme--light v-input--selection-controls v-input--checkbox">
+              <div class="v-input__control">
+                <div class="v-input__slot">
+                  <div class="v-input--selection-controls__input">
+                    <input type="checkbox" class="expand-statuses-checkbox">
+                    <div class="v-input--selection-controls__ripple"></div>
+                    <i class="v-icon notranslate mdi mdi-checkbox-marked theme--light"></i>
+                  </div>
+                  <label>Разворачивать статусы</label>
+                </div>
               </div>
-              <label>Разворачивать статусы</label>
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  `
-  wrapper.appendChild(expandStatusesCheckbox)
+      `
+      wrapper.appendChild(expandStatusesCheckbox)
 
-  // Добавляем обработчик для нового чекбокса
-  const checkbox = expandStatusesCheckbox.querySelector(
-    ".expand-statuses-checkbox"
-  )
-  chrome.storage.sync.get(["expandStatusesEnabled"], function (result) {
-    checkbox.checked = result.expandStatusesEnabled !== false
-  })
-  checkbox.addEventListener("change", function () {
-    chrome.storage.sync.set({ expandStatusesEnabled: this.checked })
-  })
-}
+      // Добавляем обработчик для нового чекбокса
+      const checkbox = expandStatusesCheckbox.querySelector(
+        ".expand-statuses-checkbox"
+      )
+      chrome.storage.sync.get(["expandStatusesEnabled"], function (result) {
+        checkbox.checked = result.expandStatusesEnabled !== false
+      })
+      checkbox.addEventListener("change", function () {
+        chrome.storage.sync.set({ expandStatusesEnabled: this.checked })
+      })
+    }
+  }
+})
