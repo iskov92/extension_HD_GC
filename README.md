@@ -1,6 +1,6 @@
 # Helpdesk Badge Extension
 
-Расширение для Google Chrome, улучшающее работу с тикетами в системе Helpdesk GetCourse.
+Расширение для Google Chrome, улучшающее работу с HD.
 
 ## Возможности
 
