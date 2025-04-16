@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "Helpdesk Badge Extension",
+  "version": "2.1",
+  "description": "Добавляет бейджики рядом со ссылкой аккаунта в диалоговом окне.",
+  "permissions": ["storage", "tabs"],
+  "host_permissions": ["https://getcourse.ru/*"],
+  "content_scripts": [
+    {
+      "matches": ["https://getcourse.ru/pl/helpdesk/helpdesk/*"],
+      "js": ["content.js", "time_exceeded.js", "client_sorting.js"],
+      "css": ["styles.css"]
+    }
+  ],
+
+  "icons": {
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    },
+    "default_title": "Badges Helper"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+}

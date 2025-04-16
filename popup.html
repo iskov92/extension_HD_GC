@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="popup.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="option">
+            <label class="switch">
+                <input type="checkbox" id="badgesEnabled" checked>
+                <span class="slider"></span>
+            </label>
+            <span class="option-text">Бейджики и правая карточка</span>
+        </div>
+        <div class="option">
+            <label class="switch">
+                <input type="checkbox" id="timeExceededEnabled" checked>
+                <span class="slider"></span>
+            </label>
+            <span class="option-text">Превышения времени работы</span>
+        </div>
+        <div class="client-sorting-section">
+            <div class="option">
+                <label class="switch">
+                    <input type="checkbox" id="clientSortingEnabled" checked>
+                    <span class="slider"></span>
+                </label>
+                <span class="option-text">Сортировка клиентов</span>
+            </div>
+            <div class="option sub-option">
+                <label class="custom-checkbox">
+                    <input type="checkbox" id="expandStatusesEnabled" checked>
+                    <span class="checkmark"></span>
+                </label>
+                <span class="option-text">Разворачивать статусы</span>
+            </div>
+        </div>
+    </div>
+    <script src="popup.js"></script>
+</body>
+
+</html>

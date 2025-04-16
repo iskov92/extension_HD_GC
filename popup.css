@@ -1,0 +1,129 @@
+body {
+  width: 300px;
+  height: 200px;
+  margin: 0;
+  background-color: #292a2d;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+.container {
+  padding: 20px;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.option-text {
+  margin-left: 10px;
+  font-size: 13px;
+}
+
+.client-sorting-section {
+  border-top: 1px solid #444;
+  border-bottom: 1px solid #444;
+  padding: 15px 0;
+  margin: 15px 0;
+}
+
+.sub-option {
+  margin-left: 20px;
+  margin-bottom: 0;
+}
+
+/* Стили для switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 32px;
+  height: 16px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgb(68, 71, 70);
+  transition: 0.4s;
+  border-radius: 16px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 12px;
+  width: 12px;
+  left: 2px;
+  bottom: 2px;
+  background-color: rgb(142, 145, 143);
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: rgb(168, 199, 250);
+}
+
+input:checked + .slider:before {
+  background-color: rgb(6, 46, 111);
+  transform: translateX(16px);
+}
+
+/* Стили для кастомного чекбокса */
+.custom-checkbox {
+  position: relative;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+}
+
+.custom-checkbox input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.checkmark {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  background-color: rgb(68, 71, 70);
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+  left: 5px;
+  top: 2px;
+  width: 3px;
+  height: 8px;
+  border: solid rgb(6, 46, 111);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.custom-checkbox input:checked + .checkmark {
+  background-color: rgb(168, 199, 250);
+}
+
+.custom-checkbox input:checked + .checkmark:after {
+  display: block;
+}
