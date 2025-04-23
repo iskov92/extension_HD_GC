@@ -1,5 +1,145 @@
 console.log("Helpdesk statuses script loaded")
 
+// Функция для фильтрации сотрудников
+async function filterEmployees() {
+  console.log("Начинаем фильтрацию сотрудников...")
+
+  try {
+    // Находим поле ввода и эмулируем клик
+    const input = document.querySelector(".v-field input")
+    if (!input) {
+      console.error("Поле ввода не найдено")
+      return
+    }
+
+    input.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }))
+    input.focus()
+    console.log("Активировали поле ввода")
+
+    // Функция для ожидания появления списка
+    const waitForList = () => {
+      return new Promise((resolve) => {
+        let attempts = 0
+        const checkList = () => {
+          const overlay = document.querySelector(
+            ".v-overlay__content.v-autocomplete__content"
+          )
+          const items = overlay?.querySelectorAll(
+            ".v-list-item.respondent-list-item"
+          )
+          console.log(
+            `Попытка ${attempts + 1}: найдено элементов списка: ${
+              items?.length || 0
+            }`
+          )
+
+          if (overlay && items?.length > 0) {
+            resolve(items)
+          } else if (attempts < 20) {
+            attempts++
+            setTimeout(checkList, 100)
+          } else {
+            resolve(null)
+          }
+        }
+        checkList()
+      })
+    }
+
+    // Ждем появления списка
+    console.log("Ждем появления списка...")
+    const items = await waitForList()
+
+    if (!items) {
+      console.error("Список не появился после нескольких попыток")
+      return
+    }
+
+    console.log("Список найден, начинаем обработку элементов")
+
+    // Массив нужных названий
+    const targetTitles = [
+      "T Quick list",
+      "T База пользователей",
+      "T VIP",
+      "T Новые",
+      "T Верстка",
+      "T Easy",
+    ]
+
+    // Сначала снимаем все чекбоксы
+    console.log("Снимаем все чекбоксы...")
+    for (const item of items) {
+      const checkbox = item.querySelector('input[type="checkbox"]')
+      if (checkbox && checkbox.checked) {
+        checkbox.click()
+        await new Promise((resolve) => setTimeout(resolve, 50)) // Небольшая пауза между кликами
+        console.log("Снят чекбокс")
+      }
+    }
+
+    // Небольшая пауза после снятия чекбоксов
+    await new Promise((resolve) => setTimeout(resolve, 200))
+
+    // Теперь отмечаем нужные
+    console.log("Отмечаем нужные чекбоксы...")
+    for (const item of items) {
+      const title = item.querySelector(".v-list-item-title")
+      const checkbox = item.querySelector('input[type="checkbox"]')
+
+      if (title && checkbox) {
+        const titleText = title.textContent.trim()
+        console.log(`Проверяем элемент: ${titleText}`)
+
+        const shouldBeChecked = targetTitles.some(
+          (target) => titleText === target
+        )
+        if (shouldBeChecked && !checkbox.checked) {
+          checkbox.click()
+          await new Promise((resolve) => setTimeout(resolve, 50)) // Небольшая пауза между кликами
+          console.log(`Отмечен: ${titleText}`)
+        }
+      }
+    }
+
+    // Закрываем список кликом по полю ввода
+    input.click()
+    console.log("Закрыли список")
+
+    await new Promise((resolve) => setTimeout(resolve, 200))
+
+    // Кликаем по полю поиска
+    const searchInput = document.querySelector(
+      'input[placeholder="Поиск и фильтры"]'
+    )
+    if (searchInput) {
+      searchInput.focus()
+      searchInput.click()
+      console.log("Активировали поле поиска")
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 200))
+
+    // Кликаем по всем иконкам очистки
+    const clearIcons = document.querySelectorAll(
+      ".v-field .mdi-close-circle.v-icon--clickable"
+    )
+    clearIcons.forEach((icon) => {
+      const event = new MouseEvent("click", {
+        bubbles: true,
+        cancelable: true,
+        view: window,
+      })
+      icon.dispatchEvent(event)
+      console.log("Кликнули по иконке очистки")
+    })
+
+    console.log("Фильтрация завершена")
+  } catch (error) {
+    console.error("Ошибка при фильтрации:", error)
+  }
+}
+
 // Функция ожидания появления элемента в DOM
 function waitForElement(selector, timeout = 5000) {
   return new Promise((resolve, reject) => {
@@ -49,6 +189,7 @@ function createStatusButton() {
         left: 100%;
         top: 0;
         background: white;
+        border: 1px solid #ff8a24;
         border-radius: 4px;
         box-shadow: 0 2px 6px -1px rgba(0, 0, 0, 0.16);
         padding: 8px 0;
@@ -57,9 +198,9 @@ function createStatusButton() {
         z-index: 1000;
     `
 
-  // Добавляем пункты меню (пока пустые, для примера)
+  // Добавляем пункты меню
   const menuItems = [
-    { text: "Тест1", action: () => console.log("Тест1") },
+    { text: "Время работы сотрудников", action: () => filterEmployees() },
     { text: "Тест2", action: () => console.log("Тест2") },
     { text: "Тест3", action: () => console.log("Тест3") },
   ]
