@@ -148,8 +148,8 @@ body {
   position: absolute;
   cursor: pointer;
   top: 0;
-  left: -1px;
-  right: -1px;
+  left: 0;
+  right: 0;
   bottom: 0;
   background-color: var(--bg-secondary);
   transition: var(--transition-speed);
@@ -248,12 +248,4 @@ input:checked + .slider:before {
 /* Специальные стили для переключателя темы в header */
 .theme-switch {
   transform: scale(0.8);
-}
-
-/* Стили для разделителей секций */
-.client-sorting-section {
-  border-top: 1px solid var(--border-color);
-  border-bottom: 1px solid var(--border-color);
-  padding: 15px 0;
-  margin: 15px 0;
 }
