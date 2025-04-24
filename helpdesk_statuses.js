@@ -1,915 +1,90 @@
 // Helpdesk statuses script
 
-// Функция для фильтрации сотрудников
-async function filterEmployees() {
-  try {
-    // Шаг 1: Клик на выпадающий список стутсов и фильтров
-    const searchInput = document.querySelector(
-      'input[placeholder="Поиск и фильтры"]'
-    )
-    if (searchInput) {
-      searchInput.focus()
-      searchInput.click()
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 50))
-
-    // Шаг 2: Очистка полей фильтров и статусов
-    const fields = document.querySelectorAll(
-      ".v-field.v-field--active.v-field--appended.v-field--center-affix.v-field--dirty.v-field--persistent-clear.v-field--no-label.v-field--variant-outlined.v-theme--lightTheme.v-locale--is-ltr"
-    )
-    fields.forEach((field) => {
-      const clearIcon = field.querySelector(".mdi-close-circle")
-      if (clearIcon) {
-        clearIcon.click()
-      }
-    })
-
-    await new Promise((resolve) => setTimeout(resolve, 50))
-
-    // Шаг 3: Клик на поле статусов
-    const statusField = Array.from(document.querySelectorAll(".v-field")).find(
-      (f) => f.querySelector("input")?.placeholder === "Все активные статусы"
-    )
-    if (statusField) {
-      statusField.focus()
-      statusField.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "ArrowDown" })
-      )
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 50))
-
-    // Шаг 4: Установка нужных статусов в поле статусов
-    const targetTexts = ["ВНУТР. ЗАПРОС", "ЖДЕТ ОТВЕТА"]
-
-    for (const text of targetTexts) {
-      const titleDiv = [
-        ...document.querySelectorAll(".v-list-item-title"),
-      ].find((div) => div.innerText.trim().toUpperCase() === text)
-
-      if (titleDiv) {
-        const parent = titleDiv.closest(".v-list-item")
-        const checkbox = parent?.querySelector('input[type="checkbox"]')
-        if (checkbox && !checkbox.checked) {
-          checkbox.click()
-          await new Promise((resolve) => setTimeout(resolve, 50))
-        }
-      }
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 50))
-
-    // Шаг 5: Нажатие кнопки "Применить" в окне статусов и фильтров
-    const applyButton = [...document.querySelectorAll("button")].find(
-      (btn) => btn.innerText.trim().toUpperCase() === "ПРИМЕНИТЬ"
-    )
-
-    if (applyButton) {
-      applyButton.click()
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 50))
-
-    // Шаг 6: ждем загруки поля выбора отделов и нажимаем на него
-    const input = document.querySelector(".v-field input")
-    if (!input) {
-      return
-    }
-
-    input.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }))
-    input.focus()
-
-    // Ожидаем появления списка отделов
-    const waitForList = () => {
-      return new Promise((resolve) => {
-        let attempts = 0
-        const checkList = () => {
-          const overlay = document.querySelector(
-            ".v-overlay__content.v-autocomplete__content"
-          )
-          const items = overlay?.querySelectorAll(
-            ".v-list-item.respondent-list-item"
-          )
-
-          if (overlay && items?.length > 0) {
-            resolve(items)
-          } else if (attempts < 20) {
-            attempts++
-            setTimeout(checkList, 30)
-          } else {
-            resolve(null)
-          }
-        }
-        checkList()
-      })
-    }
-
-    // еще раз ждем появления списка
-    const items = await waitForList()
-
-    if (!items) {
-      return
-    }
-
-    // Массив нужных названий отделов, которые мы будем отмечать
-    const targetTitles = [
+// ===== КОНФИГУРАЦИИ =====
+// Объект с настройками для разных вариантов фильтрации
+const filterConfigs = {
+  // Конфигурация для "Время работы сотрудников"
+  employees: {
+    responsibleFilter: {
+      placeholder: "Все активные статусы",
+      targetTexts: ["ВНУТР. ЗАПРОС", "ЖДЕТ ОТВЕТА"],
+      needsScrolling: false,
+    },
+    statusFilter: null,
+    departments: [
       "T Quick list",
       "T База пользователей",
       "T VIP",
       "T Новые",
       "T Верстка",
       "T Easy",
-    ]
-
-    // Сначала снимаем все чекбоксы отделов, которые отметили раньше
-    for (const item of items) {
-      const checkbox = item.querySelector('input[type="checkbox"]')
-      if (checkbox && checkbox.checked) {
-        checkbox.click()
-        await new Promise((resolve) => setTimeout(resolve, 50)) // Небольшая пауза между кликами
-      }
-    }
-
-    // ждем после очистки ранее установленных чекбоксов
-    await new Promise((resolve) => setTimeout(resolve, 50))
-
-    // Теперь отмечаем нужные, котоыре ранее указали в массиве
-    for (const item of items) {
-      const title = item.querySelector(".v-list-item-title")
-      const checkbox = item.querySelector('input[type="checkbox"]')
-
-      if (title && checkbox) {
-        const titleText = title.textContent.trim()
-
-        const shouldBeChecked = targetTitles.some(
-          (target) => titleText === target
-        )
-        if (shouldBeChecked && !checkbox.checked) {
-          checkbox.click()
-          await new Promise((resolve) => setTimeout(resolve, 50)) // Небольшая пауза между кликами
-        }
-      }
-    }
-
-    // Закрываем список с чекбоксами отделов
-    input.click()
-
-    await new Promise((resolve) => setTimeout(resolve, 50))
-
-    // Закрываем окно выбора сотрудников через ESC, если оно осталось открытым
-    document.dispatchEvent(
-      new KeyboardEvent("keydown", {
-        key: "Escape",
-        code: "Escape",
-        keyCode: 27,
-        which: 27,
-        bubbles: true,
-      })
-    )
-
-    await new Promise((resolve) => setTimeout(resolve, 50))
-  } catch (error) {
-    // ... existing code ...
-  }
-}
-
-// Копия функции filterEmployees для AI помощника
-// ===== НАЧАЛО СКРИПТА AI ПОМОЩНИК =====
-async function aiAssistant() {
-  try {
-    // Шаг 1: Клик на выпадающий список стутсов и фильтров
-    const searchInput = document.querySelector(
-      'input[placeholder="Поиск и фильтры"]'
-    )
-    if (searchInput) {
-      searchInput.focus()
-      searchInput.click()
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 50))
-
-    // Шаг 2: Очистка полей фильтров и статусов
-    const fields = document.querySelectorAll(
-      ".v-field.v-field--active.v-field--appended.v-field--center-affix.v-field--dirty.v-field--persistent-clear.v-field--no-label.v-field--variant-outlined.v-theme--lightTheme.v-locale--is-ltr"
-    )
-    fields.forEach((field) => {
-      const clearIcon = field.querySelector(".mdi-close-circle")
-      if (clearIcon) {
-        clearIcon.click()
-      }
-    })
-
-    await new Promise((resolve) => setTimeout(resolve, 50))
-
-    // Шаг 5: Нажатие кнопки "Применить" в окне статусов и фильтров
-    const applyButton = [...document.querySelectorAll("button")].find(
-      (btn) => btn.innerText.trim().toUpperCase() === "ПРИМЕНИТЬ"
-    )
-
-    if (applyButton) {
-      applyButton.click()
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 50))
-
-    // Шаг 6: ждем загруки поля выбора отделов и нажимаем на него
-    const input = document.querySelector(".v-field input")
-    if (!input) {
-      return
-    }
-
-    input.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }))
-    input.focus()
-
-    // Ожидаем появления списка отделов
-    const waitForList = () => {
-      return new Promise((resolve) => {
-        let attempts = 0
-        const checkList = () => {
-          const overlay = document.querySelector(
-            ".v-overlay__content.v-autocomplete__content"
-          )
-          const items = overlay?.querySelectorAll(
-            ".v-list-item.respondent-list-item"
-          )
-
-          if (overlay && items?.length > 0) {
-            resolve(items)
-          } else if (attempts < 20) {
-            attempts++
-            setTimeout(checkList, 30)
-          } else {
-            resolve(null)
-          }
-        }
-        checkList()
-      })
-    }
-
-    // еще раз ждем появления списка
-    const items = await waitForList()
-
-    if (!items) {
-      return
-    }
-
-    // Массив нужных названий отделов, которые мы будем отмечать
-    const targetTitles = ["AI Помощник"]
-
-    // Сначала снимаем все чекбоксы отделов, которые отметили раньше
-    for (const item of items) {
-      const checkbox = item.querySelector('input[type="checkbox"]')
-      if (checkbox && checkbox.checked) {
-        checkbox.click()
-        await new Promise((resolve) => setTimeout(resolve, 50)) // Небольшая пауза между кликами
-      }
-    }
-
-    // ждем после очистки ранее установленных чекбоксов
-    await new Promise((resolve) => setTimeout(resolve, 50))
-
-    // Теперь отмечаем нужные, котоыре ранее указали в массиве
-    for (const item of items) {
-      const title = item.querySelector(".v-list-item-title")
-      const checkbox = item.querySelector('input[type="checkbox"]')
-
-      if (title && checkbox) {
-        const titleText = title.textContent.trim()
-
-        const shouldBeChecked = targetTitles.some(
-          (target) => titleText === target
-        )
-        if (shouldBeChecked && !checkbox.checked) {
-          checkbox.click()
-          await new Promise((resolve) => setTimeout(resolve, 50)) // Небольшая пауза между кликами
-        }
-      }
-    }
-
-    // Закрываем список с чекбоксами отделов
-    input.click()
-
-    await new Promise((resolve) => setTimeout(resolve, 50))
-
-    // Закрываем окно выбора сотрудников через ESC, если оно осталось открытым
-    document.dispatchEvent(
-      new KeyboardEvent("keydown", {
-        key: "Escape",
-        code: "Escape",
-        keyCode: 27,
-        which: 27,
-        bubbles: true,
-      })
-    )
-
-    await new Promise((resolve) => setTimeout(resolve, 50))
-  } catch (error) {
-    // ... existing code ...
-  }
-}
-// ===== КОНЕЦ СКРИПТА AI ПОМОЩНИК =====
-
-// Копия функции aiAssistant для исполнителей услуг
-// ===== НАЧАЛО СКРИПТА S ИСПОЛНИТЕЛИ УСЛУГ =====
-async function serviceExecutors() {
-  try {
-    // Шаг 1: Клик на выпадающий список стутсов и фильтров
-    const searchInput = document.querySelector(
-      'input[placeholder="Поиск и фильтры"]'
-    )
-    if (searchInput) {
-      searchInput.focus()
-      searchInput.click()
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 50))
-
-    // Шаг 2: Очистка полей фильтров и статусов
-    const fields = document.querySelectorAll(
-      ".v-field.v-field--active.v-field--appended.v-field--center-affix.v-field--dirty.v-field--persistent-clear.v-field--no-label.v-field--variant-outlined.v-theme--lightTheme.v-locale--is-ltr"
-    )
-    fields.forEach((field) => {
-      const clearIcon = field.querySelector(".mdi-close-circle")
-      if (clearIcon) {
-        clearIcon.click()
-      }
-    })
-
-    await new Promise((resolve) => setTimeout(resolve, 50))
-
-    // Шаг 5: Нажатие кнопки "Применить" в окне статусов и фильтров
-    const applyButton = [...document.querySelectorAll("button")].find(
-      (btn) => btn.innerText.trim().toUpperCase() === "ПРИМЕНИТЬ"
-    )
-
-    if (applyButton) {
-      applyButton.click()
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 50))
-
-    // Шаг 6: ждем загруки поля выбора отделов и нажимаем на него
-    const input = document.querySelector(".v-field input")
-    if (!input) {
-      return
-    }
-
-    input.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }))
-    input.focus()
-
-    // Ожидаем появления списка отделов
-    const waitForList = () => {
-      return new Promise((resolve) => {
-        let attempts = 0
-        const checkList = () => {
-          const overlay = document.querySelector(
-            ".v-overlay__content.v-autocomplete__content"
-          )
-          const items = overlay?.querySelectorAll(
-            ".v-list-item.respondent-list-item"
-          )
-
-          if (overlay && items?.length > 0) {
-            resolve(items)
-          } else if (attempts < 20) {
-            attempts++
-            setTimeout(checkList, 30)
-          } else {
-            resolve(null)
-          }
-        }
-        checkList()
-      })
-    }
-
-    // еще раз ждем появления списка
-    const items = await waitForList()
-
-    if (!items) {
-      return
-    }
-
-    // Массив нужных названий отделов, которые мы будем отмечать
-    const targetTitles = ["S Исполнители платных услуг"]
-
-    // Сначала снимаем все чекбоксы отделов, которые отметили раньше
-    for (const item of items) {
-      const checkbox = item.querySelector('input[type="checkbox"]')
-      if (checkbox && checkbox.checked) {
-        checkbox.click()
-        await new Promise((resolve) => setTimeout(resolve, 50)) // Небольшая пауза между кликами
-      }
-    }
-
-    // ждем после очистки ранее установленных чекбоксов
-    await new Promise((resolve) => setTimeout(resolve, 50))
-
-    // Теперь отмечаем нужные, котоыре ранее указали в массиве
-    for (const item of items) {
-      const title = item.querySelector(".v-list-item-title")
-      const checkbox = item.querySelector('input[type="checkbox"]')
-
-      if (title && checkbox) {
-        const titleText = title.textContent.trim()
-
-        const shouldBeChecked = targetTitles.some(
-          (target) => titleText === target
-        )
-        if (shouldBeChecked && !checkbox.checked) {
-          checkbox.click()
-          await new Promise((resolve) => setTimeout(resolve, 50)) // Небольшая пауза между кликами
-        }
-      }
-    }
-
-    // Закрываем список с чекбоксами отделов
-    input.click()
-
-    await new Promise((resolve) => setTimeout(resolve, 50))
-
-    // Закрываем окно выбора сотрудников через ESC, если оно осталось открытым
-    document.dispatchEvent(
-      new KeyboardEvent("keydown", {
-        key: "Escape",
-        code: "Escape",
-        keyCode: 27,
-        which: 27,
-        bubbles: true,
-      })
-    )
-
-    await new Promise((resolve) => setTimeout(resolve, 50))
-  } catch (error) {
-    // ... existing code ...
-  }
-}
-// ===== КОНЕЦ СКРИПТА S ИСПОЛНИТЕЛИ УСЛУГ =====
-
-// Копия функции filterEmployees для персональных статусов
-// ===== НАЧАЛО СКРИПТА МОИ СТАТУСЫ ДЛЯ РАБОТЫ =====
-async function myWorkStatuses() {
-  try {
-    // Шаг 1: Клик на выпадающий список стутсов и фильтров
-    const searchInput = document.querySelector(
-      'input[placeholder="Поиск и фильтры"]'
-    )
-    if (searchInput) {
-      searchInput.focus()
-      searchInput.click()
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 50))
-
-    // Шаг 2: Очистка полей фильтров и статусов
-    const fields = document.querySelectorAll(
-      ".v-field.v-field--active.v-field--appended.v-field--center-affix.v-field--dirty.v-field--persistent-clear.v-field--no-label.v-field--variant-outlined.v-theme--lightTheme.v-locale--is-ltr"
-    )
-    fields.forEach((field) => {
-      const clearIcon = field.querySelector(".mdi-close-circle")
-      if (clearIcon) {
-        clearIcon.click()
-      }
-    })
-
-    await new Promise((resolve) => setTimeout(resolve, 50))
-
-    // Шаг 3: Клик на поле статусов
-    const statusField = Array.from(document.querySelectorAll(".v-field")).find(
-      (f) => f.querySelector("input")?.placeholder === "Все ответственные"
-    )
-    if (statusField) {
-      statusField.focus()
-      statusField.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "ArrowDown" })
-      )
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 50))
-
-    // Шаг4: Открываем список с ответственными и выбираем нужные
-    const targetTexts = ["БЕЗ ОТВЕТСТВЕННОГО", "АНТОН ПИСКОВОЙ"]
-
-    async function scrollAndClickTarget(text) {
-      const container = document.querySelector(".v-list") // адаптируй при необходимости
-      const step = 300 // было 100 — увеличили
-      let maxScrolls = 50
-
-      for (let i = 0; i < maxScrolls; i++) {
-        const titleDiv = [
-          ...document.querySelectorAll(".v-list-item-title"),
-        ].find((div) => div.innerText.trim().toUpperCase() === text)
-
-        if (titleDiv) {
-          const parent = titleDiv.closest(".v-list-item")
-          const checkbox = parent?.querySelector('input[type="checkbox"]')
-          if (checkbox && !checkbox.checked) {
-            checkbox.click()
-            await new Promise((resolve) => setTimeout(resolve, 100)) // для надёжности после клика
-          }
-          break
-        }
-
-        container.scrollBy(0, step)
-        await new Promise((resolve) => setTimeout(resolve, 50)) // было 100 — ускорили
-      }
-    }
-
-    for (const text of targetTexts) {
-      await scrollAndClickTarget(text)
-    }
-
-    document.dispatchEvent(
-      new KeyboardEvent("keydown", {
-        key: "Escape",
-        code: "Escape",
-        keyCode: 27,
-        which: 27,
-        bubbles: true,
-      })
-    )
-
-    // Шаг 5: Клик на поле статусов
-    const statusField1 = Array.from(document.querySelectorAll(".v-field")).find(
-      (f) => f.querySelector("input")?.placeholder === "Все активные статусы"
-    )
-    if (statusField1) {
-      statusField1.focus()
-      statusField1.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "ArrowDown" })
-      )
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 50))
-
-    // Шаг 6: Установка нужных статусов в поле статусов
-    const targetTexts1 = ["НОВЫЙ", "ПРИНЯТ", "ЖДЕТ ОТВЕТА", "СМЕНА ОТДЕЛА"]
-
-    for (const text of targetTexts1) {
-      const titleDiv = [
-        ...document.querySelectorAll(".v-list-item-title"),
-      ].find((div) => div.innerText.trim().toUpperCase() === text)
-
-      if (titleDiv) {
-        const parent = titleDiv.closest(".v-list-item")
-        const checkbox = parent?.querySelector('input[type="checkbox"]')
-        if (checkbox && !checkbox.checked) {
-          checkbox.click()
-          await new Promise((resolve) => setTimeout(resolve, 50))
-        }
-      }
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 50))
-
-    // Шаг 7: Нажатие кнопки "Применить" в окне статусов и фильтров
-    const applyButton = [...document.querySelectorAll("button")].find(
-      (btn) => btn.innerText.trim().toUpperCase() === "ПРИМЕНИТЬ"
-    )
-
-    if (applyButton) {
-      applyButton.click()
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 50))
-
-    // Шаг 8: ждем загруки поля выбора отделов и нажимаем на него
-    const input = document.querySelector(".v-field input")
-    if (!input) {
-      return
-    }
-
-    input.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }))
-    input.focus()
-
-    // Ожидаем появления списка отделов
-    const waitForList = () => {
-      return new Promise((resolve) => {
-        let attempts = 0
-        const checkList = () => {
-          const overlay = document.querySelector(
-            ".v-overlay__content.v-autocomplete__content"
-          )
-          const items = overlay?.querySelectorAll(
-            ".v-list-item.respondent-list-item"
-          )
-
-          if (overlay && items?.length > 0) {
-            resolve(items)
-          } else if (attempts < 20) {
-            attempts++
-            setTimeout(checkList, 30)
-          } else {
-            resolve(null)
-          }
-        }
-        checkList()
-      })
-    }
-
-    // еще раз ждем появления списка
-    const items = await waitForList()
-
-    if (!items) {
-      return
-    }
-
-    // Массив нужных названий отделов, которые мы будем отмечать
-    const targetTitles = ["T Quick list", "T Верстка"]
-
-    // Сначала снимаем все чекбоксы отделов, которые отметили раньше
-    for (const item of items) {
-      const checkbox = item.querySelector('input[type="checkbox"]')
-      if (checkbox && checkbox.checked) {
-        checkbox.click()
-        await new Promise((resolve) => setTimeout(resolve, 50)) // Небольшая пауза между кликами
-      }
-    }
-
-    // ждем после очистки ранее установленных чекбоксов
-    await new Promise((resolve) => setTimeout(resolve, 50))
-
-    // Теперь отмечаем нужные, котоыре ранее указали в массиве
-    for (const item of items) {
-      const title = item.querySelector(".v-list-item-title")
-      const checkbox = item.querySelector('input[type="checkbox"]')
-
-      if (title && checkbox) {
-        const titleText = title.textContent.trim()
-
-        const shouldBeChecked = targetTitles.some(
-          (target) => titleText === target
-        )
-        if (shouldBeChecked && !checkbox.checked) {
-          checkbox.click()
-          await new Promise((resolve) => setTimeout(resolve, 50)) // Небольшая пауза между кликами
-        }
-      }
-    }
-
-    // Закрываем список с чекбоксами отделов
-    input.click()
-
-    await new Promise((resolve) => setTimeout(resolve, 50))
-
-    // Закрываем окно выбора сотрудников через ESC, если оно осталось открытым
-    document.dispatchEvent(
-      new KeyboardEvent("keydown", {
-        key: "Escape",
-        code: "Escape",
-        keyCode: 27,
-        which: 27,
-        bubbles: true,
-      })
-    )
-
-    await new Promise((resolve) => setTimeout(resolve, 50))
-  } catch (error) {
-    // ... existing code ...
-  }
-}
-// ===== КОНЕЦ СКРИПТА МОИ СТАТУСЫ ДЛЯ РАБОТЫ =====
-
-// ===== НАЧАЛО СКРИПТА СТАТУСЫ ДЛЯ ПРОВЕРКИ РАБОТЫ МОЕЙ ГРУППЫ  =====
-async function myWorkStatusesGroup() {
-  try {
-    // Шаг 1: Клик на выпадающий список стутсов и фильтров
-    const searchInput = document.querySelector(
-      'input[placeholder="Поиск и фильтры"]'
-    )
-    if (searchInput) {
-      searchInput.focus()
-      searchInput.click()
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 50))
-
-    // Шаг 2: Очистка полей фильтров и статусов
-    const fields = document.querySelectorAll(
-      ".v-field.v-field--active.v-field--appended.v-field--center-affix.v-field--dirty.v-field--persistent-clear.v-field--no-label.v-field--variant-outlined.v-theme--lightTheme.v-locale--is-ltr"
-    )
-    fields.forEach((field) => {
-      const clearIcon = field.querySelector(".mdi-close-circle")
-      if (clearIcon) {
-        clearIcon.click()
-      }
-    })
-
-    await new Promise((resolve) => setTimeout(resolve, 50))
-
-    // Шаг 3: Клик на поле статусов
-    const statusField = Array.from(document.querySelectorAll(".v-field")).find(
-      (f) => f.querySelector("input")?.placeholder === "Все ответственные"
-    )
-    if (statusField) {
-      statusField.focus()
-      statusField.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "ArrowDown" })
-      )
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 50))
-
-    // Шаг4: Открываем список с ответственными и выбираем нужные
-    const targetTexts = [
-      "БЕЗ ОТВЕТСТВЕННОГО",
-      "АНАСТАСИЯ КОРОЛЕВА",
-      "АНТОН МАНОХИН",
-      "ВАДИМ ИЛЬИН",
-      "ДАРЬЯ ТОПОРКОВА",
-      "ЕВГЕНИЯ ДОРОФЕЕВА",
-      "ПОЛИНА СТЕПАНЧУК",
-      "СВЕТЛАНА ТЮНЬКОВА",
-    ]
-
-    async function scrollAndClickTarget(text) {
-      const container = document.querySelector(".v-list") // адаптируй при необходимости
-      const step = 200 // было 100 — увеличили
-      let maxScrolls = 50
-
-      for (let i = 0; i < maxScrolls; i++) {
-        const titleDiv = [
-          ...document.querySelectorAll(".v-list-item-title"),
-        ].find((div) => div.innerText.trim().toUpperCase() === text)
-
-        if (titleDiv) {
-          const parent = titleDiv.closest(".v-list-item")
-          const checkbox = parent?.querySelector('input[type="checkbox"]')
-          if (checkbox && !checkbox.checked) {
-            checkbox.click()
-            await new Promise((resolve) => setTimeout(resolve, 50)) // для надёжности после клика
-          }
-          break
-        }
-
-        container.scrollBy(0, step)
-        await new Promise((resolve) => setTimeout(resolve, 20)) // было 100 — ускорили
-      }
-    }
-
-    for (const text of targetTexts) {
-      await scrollAndClickTarget(text)
-    }
-
-    document.dispatchEvent(
-      new KeyboardEvent("keydown", {
-        key: "Escape",
-        code: "Escape",
-        keyCode: 27,
-        which: 27,
-        bubbles: true,
-      })
-    )
-
-    // Шаг 5: Клик на поле статусов
-    const statusField1 = Array.from(document.querySelectorAll(".v-field")).find(
-      (f) => f.querySelector("input")?.placeholder === "Все активные статусы"
-    )
-    if (statusField1) {
-      statusField1.focus()
-      statusField1.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "ArrowDown" })
-      )
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 10))
-
-    // Шаг 6: Установка нужных статусов в поле статусов
-    const targetTexts1 = ["НОВЫЙ", "ПРИНЯТ", "ЖДЕТ ОТВЕТА", "СМЕНА ОТДЕЛА"]
-
-    for (const text of targetTexts1) {
-      const titleDiv = [
-        ...document.querySelectorAll(".v-list-item-title"),
-      ].find((div) => div.innerText.trim().toUpperCase() === text)
-
-      if (titleDiv) {
-        const parent = titleDiv.closest(".v-list-item")
-        const checkbox = parent?.querySelector('input[type="checkbox"]')
-        if (checkbox && !checkbox.checked) {
-          checkbox.click()
-          await new Promise((resolve) => setTimeout(resolve, 50))
-        }
-      }
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 50))
-
-    // Шаг 7: Нажатие кнопки "Применить" в окне статусов и фильтров
-    const applyButton = [...document.querySelectorAll("button")].find(
-      (btn) => btn.innerText.trim().toUpperCase() === "ПРИМЕНИТЬ"
-    )
-
-    if (applyButton) {
-      applyButton.click()
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 50))
-
-    // Шаг 8: ждем загруки поля выбора отделов и нажимаем на него
-    const input = document.querySelector(".v-field input")
-    if (!input) {
-      return
-    }
-
-    input.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }))
-    input.focus()
-
-    // Ожидаем появления списка отделов
-    const waitForList = () => {
-      return new Promise((resolve) => {
-        let attempts = 0
-        const checkList = () => {
-          const overlay = document.querySelector(
-            ".v-overlay__content.v-autocomplete__content"
-          )
-          const items = overlay?.querySelectorAll(
-            ".v-list-item.respondent-list-item"
-          )
-
-          if (overlay && items?.length > 0) {
-            resolve(items)
-          } else if (attempts < 20) {
-            attempts++
-            setTimeout(checkList, 30)
-          } else {
-            resolve(null)
-          }
-        }
-        checkList()
-      })
-    }
-
-    // еще раз ждем появления списка
-    const items = await waitForList()
-
-    if (!items) {
-      return
-    }
-
-    // Массив нужных названий отделов, которые мы будем отмечать
-    const targetTitles = [
+    ],
+  },
+
+  // Конфигурация для "AI помощник"
+  aiAssistant: {
+    responsibleFilter: null,
+    statusFilter: null,
+    departments: ["AI Помощник"],
+  },
+
+  // Конфигурация для "S исполнители услуг"
+  serviceExecutors: {
+    responsibleFilter: null,
+    statusFilter: null,
+    departments: ["S Исполнители платных услуг"],
+  },
+
+  // Конфигурация для "Мои статусы для работы"
+  myWorkStatuses: {
+    responsibleFilter: {
+      placeholder: "Все ответственные",
+      targetTexts: ["БЕЗ ОТВЕТСТВЕННОГО", "АНТОН ПИСКОВОЙ"],
+      needsScrolling: true,
+    },
+    statusFilter: {
+      placeholder: "Все активные статусы",
+      targetTexts: ["НОВЫЙ", "ПРИНЯТ", "ЖДЕТ ОТВЕТА", "СМЕНА ОТДЕЛА"],
+      needsScrolling: false,
+    },
+    departments: ["T Quick list", "T Верстка"],
+  },
+
+  // Конфигурация для "Моя группа"
+  myWorkStatusesGroup: {
+    responsibleFilter: {
+      placeholder: "Все ответственные",
+      targetTexts: [
+        "БЕЗ ОТВЕТСТВЕННОГО",
+        "АНАСТАСИЯ КОРОЛЕВА",
+        "АНТОН МАНОХИН",
+        "ВАДИМ ИЛЬИН",
+        "ДАРЬЯ ТОПОРКОВА",
+        "ЕВГЕНИЯ ДОРОФЕЕВА",
+        "ПОЛИНА СТЕПАНЧУК",
+        "СВЕТЛАНА ТЮНЬКОВА",
+      ],
+      needsScrolling: true,
+    },
+    statusFilter: {
+      placeholder: "Все активные статусы",
+      targetTexts: ["НОВЫЙ", "ПРИНЯТ", "ЖДЕТ ОТВЕТА", "СМЕНА ОТДЕЛА"],
+      needsScrolling: false,
+    },
+    departments: [
       "T Quick list",
       "T База пользователей",
       "T VIP",
       "T Новые",
       "T Верстка",
       "T Easy",
-    ]
-
-    // Сначала снимаем все чекбоксы отделов, которые отметили раньше
-    for (const item of items) {
-      const checkbox = item.querySelector('input[type="checkbox"]')
-      if (checkbox && checkbox.checked) {
-        checkbox.click()
-        await new Promise((resolve) => setTimeout(resolve, 50)) // Небольшая пауза между кликами
-      }
-    }
-
-    // ждем после очистки ранее установленных чекбоксов
-    await new Promise((resolve) => setTimeout(resolve, 50))
-
-    // Теперь отмечаем нужные, котоыре ранее указали в массиве
-    for (const item of items) {
-      const title = item.querySelector(".v-list-item-title")
-      const checkbox = item.querySelector('input[type="checkbox"]')
-
-      if (title && checkbox) {
-        const titleText = title.textContent.trim()
-
-        const shouldBeChecked = targetTitles.some(
-          (target) => titleText === target
-        )
-        if (shouldBeChecked && !checkbox.checked) {
-          checkbox.click()
-          await new Promise((resolve) => setTimeout(resolve, 50)) // Небольшая пауза между кликами
-        }
-      }
-    }
-
-    // Закрываем список с чекбоксами отделов
-    input.click()
-
-    await new Promise((resolve) => setTimeout(resolve, 50))
-
-    // Закрываем окно выбора сотрудников через ESC, если оно осталось открытым
-    document.dispatchEvent(
-      new KeyboardEvent("keydown", {
-        key: "Escape",
-        code: "Escape",
-        keyCode: 27,
-        which: 27,
-        bubbles: true,
-      })
-    )
-
-    await new Promise((resolve) => setTimeout(resolve, 50))
-  } catch (error) {
-    // ... existing code ...
-  }
+    ],
+  },
 }
-// ===== КОНЕЦ СКРИПТА СТАТУСЫ ДЛЯ ПРОВЕРКИ РАБОТЫ МОЕЙ ГРУППЫ =====
 
-// Функция ожидания появления элемента в DOM
+// ===== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ =====
+
+// Функция для ожидания появления элемента в DOM
 function waitForElement(selector, timeout = 5000) {
   return new Promise((resolve, reject) => {
     const startTime = Date.now()
@@ -920,12 +95,259 @@ function waitForElement(selector, timeout = 5000) {
       } else if (Date.now() - startTime > timeout) {
         reject(`Элемент ${selector} не найден за ${timeout} мс`)
       } else {
-        setTimeout(check, 500)
+        setTimeout(check, 50)
       }
     }
     check()
   })
 }
+
+// Функция для прокрутки и выбора элементов в длинном списке
+async function scrollAndClickTarget(
+  text,
+  containerSelector = ".v-list",
+  scrollStep = 200
+) {
+  const container = document.querySelector(containerSelector)
+  let maxScrolls = 50
+
+  for (let i = 0; i < maxScrolls; i++) {
+    const titleDiv = [...document.querySelectorAll(".v-list-item-title")].find(
+      (div) => div.innerText.trim().toUpperCase() === text
+    )
+
+    if (titleDiv) {
+      const parent = titleDiv.closest(".v-list-item")
+      const checkbox = parent?.querySelector('input[type="checkbox"]')
+      if (checkbox && !checkbox.checked) {
+        checkbox.click()
+        await new Promise((resolve) => setTimeout(resolve, 50))
+      }
+      break
+    }
+
+    container.scrollBy(0, scrollStep)
+    await new Promise((resolve) => setTimeout(resolve, 20))
+  }
+}
+
+// Функция для ожидания списка элементов
+async function waitForList() {
+  return new Promise((resolve) => {
+    let attempts = 0
+    const checkList = () => {
+      const overlay = document.querySelector(
+        ".v-overlay__content.v-autocomplete__content"
+      )
+      const items = overlay?.querySelectorAll(
+        ".v-list-item.respondent-list-item"
+      )
+
+      if (overlay && items?.length > 0) {
+        resolve(items)
+      } else if (attempts < 20) {
+        attempts++
+        setTimeout(checkList, 30)
+      } else {
+        resolve(null)
+      }
+    }
+    checkList()
+  })
+}
+
+// ===== ОСНОВНАЯ ФУНКЦИЯ ФИЛЬТРАЦИИ =====
+
+// Универсальная функция фильтрации, принимающая конфигурацию
+async function filterHelpdesk(config) {
+  try {
+    // Шаг 1: Клик на выпадающий список фильтров
+    const searchInput = document.querySelector(
+      'input[placeholder="Поиск и фильтры"]'
+    )
+    if (searchInput) {
+      searchInput.focus()
+      searchInput.click()
+    }
+    await new Promise((resolve) => setTimeout(resolve, 50))
+
+    // Шаг 2: Очистка полей фильтров
+    const fields = document.querySelectorAll(
+      ".v-field.v-field--active.v-field--appended.v-field--center-affix.v-field--dirty.v-field--persistent-clear.v-field--no-label.v-field--variant-outlined.v-theme--lightTheme.v-locale--is-ltr"
+    )
+    fields.forEach((field) => {
+      const clearIcon = field.querySelector(".mdi-close-circle")
+      if (clearIcon) {
+        clearIcon.click()
+      }
+    })
+    await new Promise((resolve) => setTimeout(resolve, 50))
+
+    // Шаг 3: Обработка фильтра по ответственным (если указан)
+    if (config.responsibleFilter) {
+      await applyFilter(config.responsibleFilter)
+
+      // Закрываем меню ответственных по ESC
+      document.dispatchEvent(
+        new KeyboardEvent("keydown", {
+          key: "Escape",
+          code: "Escape",
+          keyCode: 27,
+          which: 27,
+          bubbles: true,
+        })
+      )
+      await new Promise((resolve) => setTimeout(resolve, 30))
+    }
+
+    // Шаг 4: Обработка фильтра по статусам (если указан)
+    if (config.statusFilter) {
+      await applyFilter(config.statusFilter)
+    }
+
+    // Шаг 5: Нажатие кнопки "Применить"
+    const applyButton = [...document.querySelectorAll("button")].find(
+      (btn) => btn.innerText.trim().toUpperCase() === "ПРИМЕНИТЬ"
+    )
+
+    if (applyButton) {
+      applyButton.click()
+    }
+    await new Promise((resolve) => setTimeout(resolve, 50))
+
+    // Шаг 6: Обработка выбора отделов
+    const input = document.querySelector(".v-field input")
+    if (!input) {
+      return
+    }
+
+    input.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }))
+    input.focus()
+
+    // Ждем появления списка
+    const items = await waitForList()
+    if (!items) {
+      return
+    }
+
+    // Сначала снимаем все чекбоксы
+    for (const item of items) {
+      const checkbox = item.querySelector('input[type="checkbox"]')
+      if (checkbox && checkbox.checked) {
+        checkbox.click()
+        await new Promise((resolve) => setTimeout(resolve, 30))
+      }
+    }
+    await new Promise((resolve) => setTimeout(resolve, 50))
+
+    // Затем отмечаем нужные отделы
+    for (const item of items) {
+      const title = item.querySelector(".v-list-item-title")
+      const checkbox = item.querySelector('input[type="checkbox"]')
+
+      if (title && checkbox) {
+        const titleText = title.textContent.trim()
+        const shouldBeChecked = config.departments.some(
+          (target) => titleText === target
+        )
+
+        if (shouldBeChecked && !checkbox.checked) {
+          checkbox.click()
+          await new Promise((resolve) => setTimeout(resolve, 30))
+        }
+      }
+    }
+
+    // Закрываем список с чекбоксами отделов
+    input.click()
+    await new Promise((resolve) => setTimeout(resolve, 50))
+
+    // Закрываем окно выбора через ESC, если оно осталось открытым
+    document.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "Escape",
+        code: "Escape",
+        keyCode: 27,
+        which: 27,
+        bubbles: true,
+      })
+    )
+    await new Promise((resolve) => setTimeout(resolve, 50))
+  } catch (error) {
+    // Игнорируем ошибки
+  }
+}
+
+// Функция для применения фильтра
+async function applyFilter(filterConfig) {
+  // Находим и кликаем на поле фильтра
+  const filterField = Array.from(document.querySelectorAll(".v-field")).find(
+    (f) => f.querySelector("input")?.placeholder === filterConfig.placeholder
+  )
+
+  if (filterField) {
+    filterField.focus()
+    filterField.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "ArrowDown" })
+    )
+  }
+  await new Promise((resolve) => setTimeout(resolve, 50))
+
+  // Выбираем нужные значения
+  if (filterConfig.needsScrolling) {
+    // Если нужна прокрутка для поиска элементов
+    for (const text of filterConfig.targetTexts) {
+      await scrollAndClickTarget(text)
+    }
+  } else {
+    // Если прокрутка не нужна
+    for (const text of filterConfig.targetTexts) {
+      const titleDiv = [
+        ...document.querySelectorAll(".v-list-item-title"),
+      ].find((div) => div.innerText.trim().toUpperCase() === text)
+
+      if (titleDiv) {
+        const parent = titleDiv.closest(".v-list-item")
+        const checkbox = parent?.querySelector('input[type="checkbox"]')
+        if (checkbox && !checkbox.checked) {
+          checkbox.click()
+          await new Promise((resolve) => setTimeout(resolve, 50))
+        }
+      }
+    }
+  }
+
+  await new Promise((resolve) => setTimeout(resolve, 50))
+}
+
+// ===== ПУБЛИЧНЫЕ ФУНКЦИИ ДЛЯ ВЫЗОВА =====
+
+// Функция для фильтрации сотрудников
+async function filterEmployees() {
+  await filterHelpdesk(filterConfigs.employees)
+}
+
+// Функция для фильтрации AI помощника
+async function aiAssistant() {
+  await filterHelpdesk(filterConfigs.aiAssistant)
+}
+
+// Функция для фильтрации S исполнителей услуг
+async function serviceExecutors() {
+  await filterHelpdesk(filterConfigs.serviceExecutors)
+}
+
+// Функция для фильтрации "Мои статусы для работы"
+async function myWorkStatuses() {
+  await filterHelpdesk(filterConfigs.myWorkStatuses)
+}
+
+// Функция для фильтрации "Моя группа"
+async function myWorkStatusesGroup() {
+  await filterHelpdesk(filterConfigs.myWorkStatusesGroup)
+}
+
+// ===== ФУНКЦИИ ДЛЯ СОЗДАНИЯ И ОТОБРАЖЕНИЯ UI =====
 
 // Функция для создания кнопки статусов
 function createStatusButton() {
@@ -973,14 +395,12 @@ function createStatusButton() {
     {
       text: "Время работы сотрудников",
       action: async () => {
-        if (!window.Preloader) {
-          return
-        }
+        if (!window.Preloader) return
         try {
           window.Preloader.show()
           await filterEmployees()
         } catch (error) {
-          // ... existing code ...
+          // Игнорируем ошибки
         } finally {
           window.Preloader.hide()
         }
@@ -989,14 +409,12 @@ function createStatusButton() {
     {
       text: "AI помощник",
       action: async () => {
-        if (!window.Preloader) {
-          return
-        }
+        if (!window.Preloader) return
         try {
           window.Preloader.show()
           await aiAssistant()
         } catch (error) {
-          // ... existing code ...
+          // Игнорируем ошибки
         } finally {
           window.Preloader.hide()
         }
@@ -1005,14 +423,12 @@ function createStatusButton() {
     {
       text: "S исполнители услуг",
       action: async () => {
-        if (!window.Preloader) {
-          return
-        }
+        if (!window.Preloader) return
         try {
           window.Preloader.show()
           await serviceExecutors()
         } catch (error) {
-          // ... existing code ...
+          // Игнорируем ошибки
         } finally {
           window.Preloader.hide()
         }
@@ -1021,14 +437,12 @@ function createStatusButton() {
     {
       text: "Мои статусы для работы",
       action: async () => {
-        if (!window.Preloader) {
-          return
-        }
+        if (!window.Preloader) return
         try {
           window.Preloader.show()
           await myWorkStatuses()
         } catch (error) {
-          // ... existing code ...
+          // Игнорируем ошибки
         } finally {
           window.Preloader.hide()
         }
@@ -1037,14 +451,12 @@ function createStatusButton() {
     {
       text: "Моя группа",
       action: async () => {
-        if (!window.Preloader) {
-          return
-        }
+        if (!window.Preloader) return
         try {
           window.Preloader.show()
           await myWorkStatusesGroup()
         } catch (error) {
-          // ... existing code ...
+          // Игнорируем ошибки
         } finally {
           window.Preloader.hide()
         }
@@ -1138,6 +550,7 @@ const observer = new MutationObserver((mutations) => {
     }
   }
 })
+
 observer.observe(document.body, {
   childList: true,
   subtree: true,
