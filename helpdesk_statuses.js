@@ -224,6 +224,7 @@ function waitForElement(selector, timeout = 5000) {
 
 // Функция для создания кнопки статусов
 function createStatusButton() {
+  console.log("Создаем кнопку статусов...")
   const button = document.createElement("div")
   button.className = "status-button"
   button.style.cssText = `
@@ -264,12 +265,36 @@ function createStatusButton() {
 
   // Добавляем пункты меню
   const menuItems = [
-    { text: "Время работы сотрудников", action: () => filterEmployees() },
+    {
+      text: "Время работы сотрудников",
+      action: async () => {
+        console.log("Клик по пункту меню 'Время работы сотрудников'")
+        if (!window.Preloader) {
+          console.error(
+            "Preloader не найден! Проверьте подключение preloader.js"
+          )
+          return
+        }
+        try {
+          console.log("Пробуем показать прелоадер...")
+          window.Preloader.show()
+          console.log("Запускаем filterEmployees...")
+          await filterEmployees()
+          console.log("filterEmployees завершен")
+        } catch (error) {
+          console.error("Ошибка в обработчике меню:", error)
+        } finally {
+          console.log("Скрываем прелоадер в finally блоке")
+          window.Preloader.hide()
+        }
+      },
+    },
     { text: "Тест2", action: () => console.log("Тест2") },
     { text: "Тест3", action: () => console.log("Тест3") },
   ]
 
   menuItems.forEach((item) => {
+    console.log(`Создаем пункт меню: ${item.text}`)
     const menuItem = document.createElement("div")
     menuItem.className = "status-menu-item"
     menuItem.style.cssText = `
