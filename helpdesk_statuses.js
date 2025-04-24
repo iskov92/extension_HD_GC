@@ -367,6 +367,169 @@ async function aiAssistant() {
 }
 // ===== КОНЕЦ СКРИПТА AI ПОМОЩНИК =====
 
+// Копия функции aiAssistant для исполнителей услуг
+// ===== НАЧАЛО СКРИПТА S ИСПОЛНИТЕЛИ УСЛУГ =====
+async function serviceExecutors() {
+  console.log("Начинаем фильтрацию...")
+
+  try {
+    // Шаг 1: Активация поля поиска
+    const searchInput = document.querySelector(
+      'input[placeholder="Поиск и фильтры"]'
+    )
+    if (searchInput) {
+      searchInput.focus()
+      searchInput.click()
+      console.log("Активировали поле поиска")
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 200))
+
+    // Шаг 2: Очистка полей фильтров
+    const fields = document.querySelectorAll(
+      ".v-field.v-field--active.v-field--appended.v-field--center-affix.v-field--dirty.v-field--persistent-clear.v-field--no-label.v-field--variant-outlined.v-theme--lightTheme.v-locale--is-ltr"
+    )
+    fields.forEach((field) => {
+      const clearIcon = field.querySelector(".mdi-close-circle")
+      if (clearIcon) {
+        clearIcon.click()
+        console.log("Очистка поля выполнена")
+      }
+    })
+
+    await new Promise((resolve) => setTimeout(resolve, 200))
+
+    // Шаг 5: Нажатие кнопки "Применить"
+    const applyButton = [...document.querySelectorAll("button")].find(
+      (btn) => btn.innerText.trim().toUpperCase() === "ПРИМЕНИТЬ"
+    )
+
+    if (applyButton) {
+      applyButton.click()
+      console.log("Кнопка 'Применить' нажата")
+    } else {
+      console.warn("Кнопка 'Применить' не найдена")
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 500))
+
+    // Шаг 6: Основная логика фильтрации сотрудников
+    const input = document.querySelector(".v-field input")
+    if (!input) {
+      console.error("Поле ввода не найдено")
+      return
+    }
+
+    input.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }))
+    input.focus()
+    console.log("Активировали поле ввода")
+
+    // Функция для ожидания появления списка
+    const waitForList = () => {
+      return new Promise((resolve) => {
+        let attempts = 0
+        const checkList = () => {
+          const overlay = document.querySelector(
+            ".v-overlay__content.v-autocomplete__content"
+          )
+          const items = overlay?.querySelectorAll(
+            ".v-list-item.respondent-list-item"
+          )
+          console.log(
+            `Попытка ${attempts + 1}: найдено элементов списка: ${
+              items?.length || 0
+            }`
+          )
+
+          if (overlay && items?.length > 0) {
+            resolve(items)
+          } else if (attempts < 20) {
+            attempts++
+            setTimeout(checkList, 100)
+          } else {
+            resolve(null)
+          }
+        }
+        checkList()
+      })
+    }
+
+    // Ждем появления списка
+    console.log("Ждем появления списка...")
+    const items = await waitForList()
+
+    if (!items) {
+      console.error("Список не появился после нескольких попыток")
+      return
+    }
+
+    console.log("Список найден, начинаем обработку элементов")
+
+    // Массив нужных названий
+    const targetTitles = ["S Исполнители платных услуг"]
+
+    // Сначала снимаем все чекбоксы
+    console.log("Снимаем все чекбоксы...")
+    for (const item of items) {
+      const checkbox = item.querySelector('input[type="checkbox"]')
+      if (checkbox && checkbox.checked) {
+        checkbox.click()
+        await new Promise((resolve) => setTimeout(resolve, 50)) // Небольшая пауза между кликами
+        console.log("Снят чекбокс")
+      }
+    }
+
+    // Небольшая пауза после снятия чекбоксов
+    await new Promise((resolve) => setTimeout(resolve, 200))
+
+    // Теперь отмечаем нужные
+    console.log("Отмечаем нужные чекбоксы...")
+    for (const item of items) {
+      const title = item.querySelector(".v-list-item-title")
+      const checkbox = item.querySelector('input[type="checkbox"]')
+
+      if (title && checkbox) {
+        const titleText = title.textContent.trim()
+        console.log(`Проверяем элемент: ${titleText}`)
+
+        const shouldBeChecked = targetTitles.some(
+          (target) => titleText === target
+        )
+        if (shouldBeChecked && !checkbox.checked) {
+          checkbox.click()
+          await new Promise((resolve) => setTimeout(resolve, 50)) // Небольшая пауза между кликами
+          console.log(`Отмечен: ${titleText}`)
+        }
+      }
+    }
+
+    // Закрываем список кликом по полю ввода
+    input.click()
+    console.log("Закрыли список")
+
+    await new Promise((resolve) => setTimeout(resolve, 200))
+
+    // Закрываем окно выбора сотрудников через ESC
+    document.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "Escape",
+        code: "Escape",
+        keyCode: 27,
+        which: 27,
+        bubbles: true,
+      })
+    )
+    console.log("Отправлен ESC для закрытия окна")
+
+    await new Promise((resolve) => setTimeout(resolve, 200))
+
+    console.log("Фильтрация завершена")
+  } catch (error) {
+    console.error("Ошибка при фильтрации:", error)
+  }
+}
+// ===== КОНЕЦ СКРИПТА S ИСПОЛНИТЕЛИ УСЛУГ =====
+
 // Функция ожидания появления элемента в DOM
 function waitForElement(selector, timeout = 5000) {
   return new Promise((resolve, reject) => {
@@ -476,7 +639,30 @@ function createStatusButton() {
         }
       },
     },
-    { text: "Тест3", action: () => console.log("Тест3") },
+    {
+      text: "S исполнители услуг",
+      action: async () => {
+        console.log("Клик по пункту меню 'S исполнители услуг'")
+        if (!window.Preloader) {
+          console.error(
+            "Preloader не найден! Проверьте подключение preloader.js"
+          )
+          return
+        }
+        try {
+          console.log("Пробуем показать прелоадер...")
+          window.Preloader.show()
+          console.log("Запускаем serviceExecutors...")
+          await serviceExecutors()
+          console.log("serviceExecutors завершен")
+        } catch (error) {
+          console.error("Ошибка в обработчике меню:", error)
+        } finally {
+          console.log("Скрываем прелоадер в finally блоке")
+          window.Preloader.hide()
+        }
+      },
+    },
   ]
 
   menuItems.forEach((item) => {
@@ -568,7 +754,7 @@ const observer = new MutationObserver((mutations) => {
     }
   }
 })
-
+1
 observer.observe(document.body, {
   childList: true,
   subtree: true,
