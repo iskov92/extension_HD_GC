@@ -49,7 +49,7 @@
 
 body {
   width: 400px;
-  height: 500px;
+  height: 300px;
   margin: 0;
   background-color: var(--bg-primary);
   color: var(--text-primary);
@@ -112,7 +112,16 @@ body {
 .option {
   display: flex;
   align-items: center;
-  margin-bottom: 15px;
+  margin-bottom: 12px;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.option:hover {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .option:last-child {
@@ -128,6 +137,9 @@ body {
 .sub-option {
   margin-left: 20px;
   margin-bottom: 0;
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border-left: 2px solid var(--accent-color);
 }
 
 /* Стили для переключателя (switch) */
@@ -252,8 +264,37 @@ input:checked + .slider:before {
 
 /* Стили для разделителей секций */
 .client-sorting-section {
-  border-top: 1px solid var(--border-color);
-  border-bottom: 1px solid var(--border-color);
-  padding: 15px 0;
+  border: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 12px;
   margin: 15px 0;
+}
+
+.client-sorting-section .option {
+  background: transparent;
+  border: none;
+  padding: 6px 0;
+  margin-bottom: 5px;
+}
+
+/* Корректные стили для подопции, которая имеет оба класса: option и sub-option */
+.client-sorting-section .option.sub-option {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+  margin-left: 36px;
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+/* Убираем специфичные стили для подопции без класса option */
+.client-sorting-section .sub-option {
+  /* Оставляем этот селектор пустым для совместимости */
+}
+
+/* Стили для чекбокса внутри подопции */
+.client-sorting-section .option.sub-option .custom-checkbox {
+  display: inline-block;
 }

@@ -511,7 +511,7 @@ async function myWorkStatuses() {
         }
 
         container.scrollBy(0, step)
-        await new Promise((resolve) => setTimeout(resolve, 20)) // было 100 — ускорили
+        await new Promise((resolve) => setTimeout(resolve, 50)) // было 100 — ускорили
       }
     }
 
