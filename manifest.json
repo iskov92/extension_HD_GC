@@ -8,7 +8,12 @@
   "content_scripts": [
     {
       "matches": ["https://getcourse.ru/pl/helpdesk/helpdesk/*"],
-      "js": ["content.js", "helpdesk_statuses.js", "client_sorting.js"],
+      "js": [
+        "content.js",
+        "preloader.js",
+        "helpdesk_statuses.js",
+        "client_sorting.js"
+      ],
       "css": ["styles.css"]
     }
   ],
