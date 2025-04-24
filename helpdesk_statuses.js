@@ -184,6 +184,20 @@ async function filterEmployees() {
 
     await new Promise((resolve) => setTimeout(resolve, 200))
 
+    // Закрываем окно выбора сотрудников через ESC
+    document.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "Escape",
+        code: "Escape",
+        keyCode: 27,
+        which: 27,
+        bubbles: true,
+      })
+    )
+    console.log("Отправлен ESC для закрытия окна")
+
+    await new Promise((resolve) => setTimeout(resolve, 200))
+
     console.log("Фильтрация завершена")
   } catch (error) {
     console.error("Ошибка при фильтрации:", error)
