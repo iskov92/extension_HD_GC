@@ -5,7 +5,7 @@ async function filterEmployees() {
   console.log("Начинаем фильтрацию...")
 
   try {
-    // Шаг 1: Активация поля поиска
+    // Шаг 1: Клик на выпадающий список стутсов и фильтров
     const searchInput = document.querySelector(
       'input[placeholder="Поиск и фильтры"]'
     )
@@ -17,7 +17,7 @@ async function filterEmployees() {
 
     await new Promise((resolve) => setTimeout(resolve, 200))
 
-    // Шаг 2: Очистка полей фильтров
+    // Шаг 2: Очистка полей фильтров и статусов
     const fields = document.querySelectorAll(
       ".v-field.v-field--active.v-field--appended.v-field--center-affix.v-field--dirty.v-field--persistent-clear.v-field--no-label.v-field--variant-outlined.v-theme--lightTheme.v-locale--is-ltr"
     )
@@ -31,7 +31,7 @@ async function filterEmployees() {
 
     await new Promise((resolve) => setTimeout(resolve, 200))
 
-    // Шаг 3: Активация поля статусов
+    // Шаг 3: Клик на поле статусов
     const statusField = Array.from(document.querySelectorAll(".v-field")).find(
       (f) => f.querySelector("input")?.placeholder === "Все активные статусы"
     )
@@ -44,7 +44,7 @@ async function filterEmployees() {
 
     await new Promise((resolve) => setTimeout(resolve, 200))
 
-    // Шаг 4: Установка нужных статусов
+    // Шаг 4: Установка нужных статусов в поле статусов
     const targetTexts = ["ВНУТР. ЗАПРОС", "ЖДЕТ ОТВЕТА"]
 
     for (const text of targetTexts) {
@@ -67,7 +67,7 @@ async function filterEmployees() {
 
     await new Promise((resolve) => setTimeout(resolve, 100))
 
-    // Шаг 5: Нажатие кнопки "Применить"
+    // Шаг 5: Нажатие кнопки "Применить" в окне статусов и фильтров
     const applyButton = [...document.querySelectorAll("button")].find(
       (btn) => btn.innerText.trim().toUpperCase() === "ПРИМЕНИТЬ"
     )
@@ -81,7 +81,7 @@ async function filterEmployees() {
 
     await new Promise((resolve) => setTimeout(resolve, 500))
 
-    // Шаг 6: Основная логика фильтрации сотрудников
+    // Шаг 6: ждем загруки поля выбора отделов и нажимаем на него
     const input = document.querySelector(".v-field input")
     if (!input) {
       console.error("Поле ввода не найдено")
@@ -92,7 +92,7 @@ async function filterEmployees() {
     input.focus()
     console.log("Активировали поле ввода")
 
-    // Функция для ожидания появления списка
+    // Ожидаем появления списка отделов
     const waitForList = () => {
       return new Promise((resolve) => {
         let attempts = 0
@@ -122,7 +122,7 @@ async function filterEmployees() {
       })
     }
 
-    // Ждем появления списка
+    // еще раз ждем появления списка
     console.log("Ждем появления списка...")
     const items = await waitForList()
 
@@ -133,7 +133,7 @@ async function filterEmployees() {
 
     console.log("Список найден, начинаем обработку элементов")
 
-    // Массив нужных названий
+    // Массив нужных названий отделов, которые мы будем отмечать
     const targetTitles = [
       "T Quick list",
       "T База пользователей",
@@ -143,7 +143,7 @@ async function filterEmployees() {
       "T Easy",
     ]
 
-    // Сначала снимаем все чекбоксы
+    // Сначала снимаем все чекбоксы отделов, которые отметили раньше
     console.log("Снимаем все чекбоксы...")
     for (const item of items) {
       const checkbox = item.querySelector('input[type="checkbox"]')
@@ -154,10 +154,10 @@ async function filterEmployees() {
       }
     }
 
-    // Небольшая пауза после снятия чекбоксов
+    // ждем после очистки ранее установленных чекбоксов
     await new Promise((resolve) => setTimeout(resolve, 200))
 
-    // Теперь отмечаем нужные
+    // Теперь отмечаем нужные, котоыре ранее указали в массиве
     console.log("Отмечаем нужные чекбоксы...")
     for (const item of items) {
       const title = item.querySelector(".v-list-item-title")
@@ -178,13 +178,13 @@ async function filterEmployees() {
       }
     }
 
-    // Закрываем список кликом по полю ввода
+    // Закрываем список с чекбоксами отделов
     input.click()
     console.log("Закрыли список")
 
     await new Promise((resolve) => setTimeout(resolve, 200))
 
-    // Закрываем окно выбора сотрудников через ESC
+    // Закрываем окно выбора сотрудников через ESC, если оно осталось открытым
     document.dispatchEvent(
       new KeyboardEvent("keydown", {
         key: "Escape",
@@ -210,7 +210,7 @@ async function aiAssistant() {
   console.log("Начинаем фильтрацию...")
 
   try {
-    // Шаг 1: Активация поля поиска
+    // Шаг 1: Клик на выпадающий список стутсов и фильтров
     const searchInput = document.querySelector(
       'input[placeholder="Поиск и фильтры"]'
     )
@@ -222,7 +222,7 @@ async function aiAssistant() {
 
     await new Promise((resolve) => setTimeout(resolve, 200))
 
-    // Шаг 2: Очистка полей фильтров
+    // Шаг 2: Очистка полей фильтров и статусов
     const fields = document.querySelectorAll(
       ".v-field.v-field--active.v-field--appended.v-field--center-affix.v-field--dirty.v-field--persistent-clear.v-field--no-label.v-field--variant-outlined.v-theme--lightTheme.v-locale--is-ltr"
     )
@@ -236,7 +236,7 @@ async function aiAssistant() {
 
     await new Promise((resolve) => setTimeout(resolve, 200))
 
-    // Шаг 5: Нажатие кнопки "Применить"
+    // Шаг 5: Нажатие кнопки "Применить" в окне статусов и фильтров
     const applyButton = [...document.querySelectorAll("button")].find(
       (btn) => btn.innerText.trim().toUpperCase() === "ПРИМЕНИТЬ"
     )
@@ -250,7 +250,7 @@ async function aiAssistant() {
 
     await new Promise((resolve) => setTimeout(resolve, 500))
 
-    // Шаг 6: Основная логика фильтрации сотрудников
+    // Шаг 6: ждем загруки поля выбора отделов и нажимаем на него
     const input = document.querySelector(".v-field input")
     if (!input) {
       console.error("Поле ввода не найдено")
@@ -261,7 +261,7 @@ async function aiAssistant() {
     input.focus()
     console.log("Активировали поле ввода")
 
-    // Функция для ожидания появления списка
+    // Ожидаем появления списка отделов
     const waitForList = () => {
       return new Promise((resolve) => {
         let attempts = 0
@@ -291,7 +291,7 @@ async function aiAssistant() {
       })
     }
 
-    // Ждем появления списка
+    // еще раз ждем появления списка
     console.log("Ждем появления списка...")
     const items = await waitForList()
 
@@ -302,10 +302,10 @@ async function aiAssistant() {
 
     console.log("Список найден, начинаем обработку элементов")
 
-    // Массив нужных названий
+    // Массив нужных названий отделов, которые мы будем отмечать
     const targetTitles = ["AI Помощник"]
 
-    // Сначала снимаем все чекбоксы
+    // Сначала снимаем все чекбоксы отделов, которые отметили раньше
     console.log("Снимаем все чекбоксы...")
     for (const item of items) {
       const checkbox = item.querySelector('input[type="checkbox"]')
@@ -316,10 +316,10 @@ async function aiAssistant() {
       }
     }
 
-    // Небольшая пауза после снятия чекбоксов
+    // ждем после очистки ранее установленных чекбоксов
     await new Promise((resolve) => setTimeout(resolve, 200))
 
-    // Теперь отмечаем нужные
+    // Теперь отмечаем нужные, котоыре ранее указали в массиве
     console.log("Отмечаем нужные чекбоксы...")
     for (const item of items) {
       const title = item.querySelector(".v-list-item-title")
@@ -340,13 +340,13 @@ async function aiAssistant() {
       }
     }
 
-    // Закрываем список кликом по полю ввода
+    // Закрываем список с чекбоксами отделов
     input.click()
     console.log("Закрыли список")
 
     await new Promise((resolve) => setTimeout(resolve, 200))
 
-    // Закрываем окно выбора сотрудников через ESC
+    // Закрываем окно выбора сотрудников через ESC, если оно осталось открытым
     document.dispatchEvent(
       new KeyboardEvent("keydown", {
         key: "Escape",
@@ -373,7 +373,7 @@ async function serviceExecutors() {
   console.log("Начинаем фильтрацию...")
 
   try {
-    // Шаг 1: Активация поля поиска
+    // Шаг 1: Клик на выпадающий список стутсов и фильтров
     const searchInput = document.querySelector(
       'input[placeholder="Поиск и фильтры"]'
     )
@@ -385,7 +385,7 @@ async function serviceExecutors() {
 
     await new Promise((resolve) => setTimeout(resolve, 200))
 
-    // Шаг 2: Очистка полей фильтров
+    // Шаг 2: Очистка полей фильтров и статусов
     const fields = document.querySelectorAll(
       ".v-field.v-field--active.v-field--appended.v-field--center-affix.v-field--dirty.v-field--persistent-clear.v-field--no-label.v-field--variant-outlined.v-theme--lightTheme.v-locale--is-ltr"
     )
@@ -399,7 +399,7 @@ async function serviceExecutors() {
 
     await new Promise((resolve) => setTimeout(resolve, 200))
 
-    // Шаг 5: Нажатие кнопки "Применить"
+    // Шаг 5: Нажатие кнопки "Применить" в окне статусов и фильтров
     const applyButton = [...document.querySelectorAll("button")].find(
       (btn) => btn.innerText.trim().toUpperCase() === "ПРИМЕНИТЬ"
     )
@@ -413,7 +413,7 @@ async function serviceExecutors() {
 
     await new Promise((resolve) => setTimeout(resolve, 500))
 
-    // Шаг 6: Основная логика фильтрации сотрудников
+    // Шаг 6: ждем загруки поля выбора отделов и нажимаем на него
     const input = document.querySelector(".v-field input")
     if (!input) {
       console.error("Поле ввода не найдено")
@@ -424,7 +424,7 @@ async function serviceExecutors() {
     input.focus()
     console.log("Активировали поле ввода")
 
-    // Функция для ожидания появления списка
+    // Ожидаем появления списка отделов
     const waitForList = () => {
       return new Promise((resolve) => {
         let attempts = 0
@@ -454,7 +454,7 @@ async function serviceExecutors() {
       })
     }
 
-    // Ждем появления списка
+    // еще раз ждем появления списка
     console.log("Ждем появления списка...")
     const items = await waitForList()
 
@@ -465,10 +465,10 @@ async function serviceExecutors() {
 
     console.log("Список найден, начинаем обработку элементов")
 
-    // Массив нужных названий
+    // Массив нужных названий отделов, которые мы будем отмечать
     const targetTitles = ["S Исполнители платных услуг"]
 
-    // Сначала снимаем все чекбоксы
+    // Сначала снимаем все чекбоксы отделов, которые отметили раньше
     console.log("Снимаем все чекбоксы...")
     for (const item of items) {
       const checkbox = item.querySelector('input[type="checkbox"]')
@@ -479,10 +479,10 @@ async function serviceExecutors() {
       }
     }
 
-    // Небольшая пауза после снятия чекбоксов
+    // ждем после очистки ранее установленных чекбоксов
     await new Promise((resolve) => setTimeout(resolve, 200))
 
-    // Теперь отмечаем нужные
+    // Теперь отмечаем нужные, котоыре ранее указали в массиве
     console.log("Отмечаем нужные чекбоксы...")
     for (const item of items) {
       const title = item.querySelector(".v-list-item-title")
@@ -503,13 +503,13 @@ async function serviceExecutors() {
       }
     }
 
-    // Закрываем список кликом по полю ввода
+    // Закрываем список с чекбоксами отделов
     input.click()
     console.log("Закрыли список")
 
     await new Promise((resolve) => setTimeout(resolve, 200))
 
-    // Закрываем окно выбора сотрудников через ESC
+    // Закрываем окно выбора сотрудников через ESC, если оно осталось открытым
     document.dispatchEvent(
       new KeyboardEvent("keydown", {
         key: "Escape",
