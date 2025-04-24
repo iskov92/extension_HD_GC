@@ -2,10 +2,86 @@ console.log("Helpdesk statuses script loaded")
 
 // Функция для фильтрации сотрудников
 async function filterEmployees() {
-  console.log("Начинаем фильтрацию сотрудников...")
+  console.log("Начинаем фильтрацию...")
 
   try {
-    // Находим поле ввода и эмулируем клик
+    // Шаг 1: Активация поля поиска
+    const searchInput = document.querySelector(
+      'input[placeholder="Поиск и фильтры"]'
+    )
+    if (searchInput) {
+      searchInput.focus()
+      searchInput.click()
+      console.log("Активировали поле поиска")
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 200))
+
+    // Шаг 2: Очистка полей фильтров
+    const fields = document.querySelectorAll(
+      ".v-field.v-field--active.v-field--appended.v-field--center-affix.v-field--dirty.v-field--persistent-clear.v-field--no-label.v-field--variant-outlined.v-theme--lightTheme.v-locale--is-ltr"
+    )
+    fields.forEach((field) => {
+      const clearIcon = field.querySelector(".mdi-close-circle")
+      if (clearIcon) {
+        clearIcon.click()
+        console.log("Очистка поля выполнена")
+      }
+    })
+
+    await new Promise((resolve) => setTimeout(resolve, 200))
+
+    // Шаг 3: Активация поля статусов
+    const statusField = Array.from(document.querySelectorAll(".v-field")).find(
+      (f) => f.querySelector("input")?.placeholder === "Все активные статусы"
+    )
+    if (statusField) {
+      statusField.focus()
+      statusField.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "ArrowDown" })
+      )
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 200))
+
+    // Шаг 4: Установка нужных статусов
+    const targetTexts = ["ВНУТР. ЗАПРОС", "ЖДЕТ ОТВЕТА"]
+
+    for (const text of targetTexts) {
+      const titleDiv = [
+        ...document.querySelectorAll(".v-list-item-title"),
+      ].find((div) => div.innerText.trim().toUpperCase() === text)
+
+      if (titleDiv) {
+        const parent = titleDiv.closest(".v-list-item")
+        const checkbox = parent?.querySelector('input[type="checkbox"]')
+        if (checkbox && !checkbox.checked) {
+          checkbox.click()
+          await new Promise((resolve) => setTimeout(resolve, 300))
+          console.log(`Установлен чекбокс статуса: ${text}`)
+        }
+      } else {
+        console.warn(`Не нашли чекбокс статуса с текстом: ${text}`)
+      }
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 100))
+
+    // Шаг 5: Нажатие кнопки "Применить"
+    const applyButton = [...document.querySelectorAll("button")].find(
+      (btn) => btn.innerText.trim().toUpperCase() === "ПРИМЕНИТЬ"
+    )
+
+    if (applyButton) {
+      applyButton.click()
+      console.log("Кнопка 'Применить' нажата")
+    } else {
+      console.warn("Кнопка 'Применить' не найдена")
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 500))
+
+    // Шаг 6: Основная логика фильтрации сотрудников
     const input = document.querySelector(".v-field input")
     if (!input) {
       console.error("Поле ввода не найдено")
@@ -107,32 +183,6 @@ async function filterEmployees() {
     console.log("Закрыли список")
 
     await new Promise((resolve) => setTimeout(resolve, 200))
-
-    // Кликаем по полю поиска
-    const searchInput = document.querySelector(
-      'input[placeholder="Поиск и фильтры"]'
-    )
-    if (searchInput) {
-      searchInput.focus()
-      searchInput.click()
-      console.log("Активировали поле поиска")
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 200))
-
-    // Кликаем по всем иконкам очистки
-    const clearIcons = document.querySelectorAll(
-      ".v-field .mdi-close-circle.v-icon--clickable"
-    )
-    clearIcons.forEach((icon) => {
-      const event = new MouseEvent("click", {
-        bubbles: true,
-        cancelable: true,
-        view: window,
-      })
-      icon.dispatchEvent(event)
-      console.log("Кликнули по иконке очистки")
-    })
 
     console.log("Фильтрация завершена")
   } catch (error) {
