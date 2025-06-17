@@ -12,7 +12,8 @@
         "content.js",
         "preloader.js",
         "helpdesk_statuses.js",
-        "client_sorting.js"
+        "client_sorting.js",
+        "project_shift_highlight.js"
       ],
       "css": ["styles.css"]
     }

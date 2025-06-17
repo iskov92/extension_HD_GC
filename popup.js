@@ -4,6 +4,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const clientSortingSwitch = document.getElementById("clientSortingEnabled")
   const expandStatusesSwitch = document.getElementById("expandStatusesEnabled")
   const themeToggle = document.getElementById("themeToggle")
+  const projectShiftHighlightSwitch = document.getElementById(
+    "projectShiftHighlightEnabled"
+  )
 
   // Загружаем сохраненные состояния
   chrome.storage.sync.get(
@@ -13,12 +16,15 @@ document.addEventListener("DOMContentLoaded", function () {
       "clientSortingEnabled",
       "expandStatusesEnabled",
       "isDarkTheme",
+      "projectShiftHighlightEnabled",
     ],
     function (result) {
       badgesSwitch.checked = result.badgesEnabled !== false
       timeExceededSwitch.checked = result.timeExceededEnabled !== false
       clientSortingSwitch.checked = result.clientSortingEnabled !== false
       expandStatusesSwitch.checked = result.expandStatusesEnabled !== false
+      projectShiftHighlightSwitch.checked =
+        result.projectShiftHighlightEnabled !== false
 
       // Устанавливаем тему
       const isDarkTheme = result.isDarkTheme !== false
@@ -73,6 +79,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
   expandStatusesSwitch.addEventListener("change", function () {
     chrome.storage.sync.set({ expandStatusesEnabled: this.checked })
+    // Перезагружаем активную вкладку для применения изменений
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+      if (tabs[0]) {
+        chrome.tabs.reload(tabs[0].id)
+      }
+    })
+  })
+
+  projectShiftHighlightSwitch.addEventListener("change", function () {
+    chrome.storage.sync.set({ projectShiftHighlightEnabled: this.checked })
     // Перезагружаем активную вкладку для применения изменений
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
       if (tabs[0]) {
