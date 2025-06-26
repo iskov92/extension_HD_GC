@@ -117,7 +117,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (customRepliesSwitch) {
     customRepliesSwitch.addEventListener("change", function () {
-      chrome.storage.sync.set({ customRepliesEnabled: this.checked })
+      chrome.storage.sync.set(
+        { customRepliesEnabled: this.checked },
+        function () {
+          // Обновляем активную вкладку после изменения
+          chrome.tabs.query(
+            { active: true, currentWindow: true },
+            function (tabs) {
+              if (tabs[0]) chrome.tabs.reload(tabs[0].id)
+            }
+          )
+        }
+      )
     })
   }
 })
