@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const ticketTimeHighlightSwitch = document.getElementById(
     "ticketTimeHighlightEnabled"
   )
+  const customRepliesSwitch = document.getElementById("customRepliesEnabled")
 
   // Загружаем сохраненные состояния
   chrome.storage.sync.get(
@@ -21,6 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
       "isDarkTheme",
       "projectShiftHighlightEnabled",
       "ticketTimeHighlightEnabled",
+      "customRepliesEnabled",
     ],
     function (result) {
       badgesSwitch.checked = result.badgesEnabled !== false
@@ -31,6 +33,7 @@ document.addEventListener("DOMContentLoaded", function () {
         result.projectShiftHighlightEnabled !== false
       ticketTimeHighlightSwitch.checked =
         result.ticketTimeHighlightEnabled !== false
+      customRepliesSwitch.checked = result.customRepliesEnabled !== false
 
       // Устанавливаем тему
       const isDarkTheme = result.isDarkTheme !== false
@@ -111,4 +114,10 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     })
   })
+
+  if (customRepliesSwitch) {
+    customRepliesSwitch.addEventListener("change", function () {
+      chrome.storage.sync.set({ customRepliesEnabled: this.checked })
+    })
+  }
 })

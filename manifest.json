@@ -14,7 +14,8 @@
         "helpdesk_statuses.js",
         "client_sorting.js",
         "project_shift_highlight.js",
-        "ticket_time_highlight.js"
+        "ticket_time_highlight.js",
+        "custom_replies.js"
       ],
       "css": ["styles.css"]
     }
