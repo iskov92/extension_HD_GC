@@ -22,7 +22,7 @@
     )
     if (!refBtn) return
     // Переопределяем только отступ справа
-    refBtn.style.setProperty("margin-right", "8px", "important")
+    refBtn.style.setProperty("margin-right", "0px", "important")
     const templateBtn = refBtn.cloneNode(true)
     templateBtn.classList.add("custom-template-btn")
     templateBtn.querySelector(".v-btn__content").textContent = "Шаблон"
