@@ -81,6 +81,15 @@ const filterConfigs = {
 
 // ===== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ =====
 
+// Функция для нормализации текста (убирает лишние пробелы, неразрывные пробелы и приводит к верхнему регистру)
+function normalizeText(str) {
+  return str
+    .replace(/\s+/g, " ")
+    .replace(/\u00A0/g, " ")
+    .trim()
+    .toUpperCase()
+}
+
 // Функция для ожидания появления элемента в DOM
 function waitForElement(selector, timeout = 5000) {
   return new Promise((resolve, reject) => {
@@ -99,32 +108,57 @@ function waitForElement(selector, timeout = 5000) {
   })
 }
 
-// Функция для прокрутки и выбора элементов в длинном списке
-async function scrollAndClickTarget(
-  text,
+// Функция для прокрутки списка до конца и сбора всех имён
+async function scrollAndFindAllNames(
   containerSelector = ".v-list",
   scrollStep = 200
 ) {
   const container = document.querySelector(containerSelector)
-  let maxScrolls = 50
+  let maxScrolls = 100
+  let names = new Set()
 
   for (let i = 0; i < maxScrolls; i++) {
-    const titleDiv = [...document.querySelectorAll(".v-list-item-title")].find(
-      (div) => div.innerText.trim().toUpperCase() === text
-    )
-
-    if (titleDiv) {
-      const parent = titleDiv.closest(".v-list-item")
-      const checkbox = parent?.querySelector('input[type="checkbox"]')
-      if (checkbox && !checkbox.checked) {
-        checkbox.click()
-        await new Promise((resolve) => setTimeout(resolve, 50))
-      }
-      break
-    }
-
+    const titleDivs = [...document.querySelectorAll(".v-list-item-title")]
+    titleDivs.forEach((div) => names.add(normalizeText(div.innerText)))
     container.scrollBy(0, scrollStep)
-    await new Promise((resolve) => setTimeout(resolve, 20))
+    await new Promise((resolve) => setTimeout(resolve, 50))
+  }
+  // После скролла — ещё раз собираем имена
+  const titleDivs = [...document.querySelectorAll(".v-list-item-title")]
+  titleDivs.forEach((div) => names.add(normalizeText(div.innerText)))
+  const allNames = Array.from(names)
+  console.log("ВСЕ НАЙДЕННЫЕ ИМЕНА:", allNames)
+  return allNames
+}
+
+// Функция для поиска и клика по нужным именам во время скролла
+async function findAndClickTargets(
+  targetTexts,
+  containerSelector = ".v-list",
+  scrollStep = 200
+) {
+  const container = document.querySelector(containerSelector)
+  let maxScrolls = 100
+  let targetsLeft = targetTexts.map(normalizeText)
+
+  for (let i = 0; i < maxScrolls && targetsLeft.length > 0; i++) {
+    const titleDivs = [...document.querySelectorAll(".v-list-item-title")]
+    for (const div of titleDivs) {
+      const norm = normalizeText(div.innerText)
+      const idx = targetsLeft.indexOf(norm)
+      if (idx !== -1) {
+        const parent = div.closest(".v-list-item")
+        const checkbox = parent?.querySelector('input[type="checkbox"]')
+        if (checkbox && !checkbox.checked) {
+          checkbox.click()
+          await new Promise((resolve) => setTimeout(resolve, 50))
+        }
+        // Удаляем найденное имя из списка
+        targetsLeft.splice(idx, 1)
+      }
+    }
+    container.scrollBy(0, scrollStep)
+    await new Promise((resolve) => setTimeout(resolve, 50))
   }
 }
 
@@ -292,16 +326,22 @@ async function applyFilter(filterConfig) {
 
   // Выбираем нужные значения
   if (filterConfig.needsScrolling) {
-    // Если нужна прокрутка для поиска элементов
-    for (const text of filterConfig.targetTexts) {
-      await scrollAndClickTarget(text)
-    }
+    // Новый способ: скроллим до конца и кликаем по нужным
+    await findAndClickTargets(filterConfig.targetTexts)
   } else {
     // Если прокрутка не нужна
     for (const text of filterConfig.targetTexts) {
-      const titleDiv = [
-        ...document.querySelectorAll(".v-list-item-title"),
-      ].find((div) => div.innerText.trim().toUpperCase() === text)
+      const titleDivs = [...document.querySelectorAll(".v-list-item-title")]
+      let found = false
+      titleDivs.forEach((div) => {
+        const normalizedDiv = normalizeText(div.innerText)
+        const normalizedText = normalizeText(text)
+        const isMatch = normalizedDiv === normalizedText
+        if (isMatch) found = true
+      })
+      const titleDiv = titleDivs.find(
+        (div) => normalizeText(div.innerText) === normalizeText(text)
+      )
 
       if (titleDiv) {
         const parent = titleDiv.closest(".v-list-item")
@@ -313,7 +353,6 @@ async function applyFilter(filterConfig) {
       }
     }
   }
-
   await new Promise((resolve) => setTimeout(resolve, 50))
 }
 

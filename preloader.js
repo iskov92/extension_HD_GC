@@ -1,5 +1,3 @@
-console.log("Preloader.js загружен")
-
 // Класс для управления прелоадером
 class Preloader {
   constructor() {
@@ -8,7 +6,6 @@ class Preloader {
 
   // Создание HTML элементов прелоадера
   createPreloaderElement() {
-    console.log("Создаем элемент прелоадера...")
     const overlay = document.createElement("div")
     overlay.id = this.preloaderId
     overlay.style.cssText = `
@@ -51,7 +48,6 @@ class Preloader {
 
   // Показать прелоадер
   show() {
-    console.log("Пытаемся показать прелоадер...")
     const mainElement = document.querySelector(".v-main.d-flex")
     if (!mainElement) {
       console.error("Не найден элемент .v-main.d-flex для прелоадера")
@@ -59,25 +55,17 @@ class Preloader {
     }
 
     if (!document.getElementById(this.preloaderId)) {
-      console.log("Создаем и добавляем прелоадер...")
       const preloader = this.createPreloaderElement()
       mainElement.style.position = "relative" // Убедимся, что у родителя position relative
       mainElement.appendChild(preloader)
-      console.log("Прелоадер добавлен")
-    } else {
-      console.log("Прелоадер уже существует")
     }
   }
 
   // Скрыть прелоадер
   hide() {
-    console.log("Пытаемся скрыть прелоадер...")
     const preloader = document.getElementById(this.preloaderId)
     if (preloader) {
       preloader.remove()
-      console.log("Прелоадер удален")
-    } else {
-      console.log("Прелоадер не найден для удаления")
     }
   }
 }
